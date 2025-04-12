@@ -196,9 +196,6 @@ function search(text) {
     let regex = new RegExp(`^${text}`, "i");
     let searched = prevjson.filter(game => regex.test(game.name));
     deleteChildElements(gamesContainer)
-    if (text.length==0)
-        addGamesToPage(prevjson)
-    else 
-        addGamesToPage(searched)
+    addGamesToPage(searched)
 }
 document.getElementById("search").addEventListener("input",(e)=>{search(e.target.value)});
