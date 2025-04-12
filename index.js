@@ -89,7 +89,9 @@ gamesCard.innerHTML=`${GAMES_JSON.length}`
  * total number of contributions, amount donated, and number of games on the site.
  * Skills used: functions, filter
 */
-
+let unfunded=false;
+let funded=false;
+let allgames=true;
 // show only games that do not yet have enough funding
 function filterUnfundedOnly() {
     deleteChildElements(gamesContainer);
@@ -99,6 +101,9 @@ function filterUnfundedOnly() {
     console.log("unfunded:"+unfunded.length);
     // use the function we previously created to add the unfunded games to the DOM
     addGamesToPage(unfunded);
+    unfunded=true;
+    funded=false;
+    allgames=false;
 
 }
 
@@ -111,6 +116,9 @@ function filterFundedOnly() {
     console.log("funded:"+funded.length);
     // use the function we previously created to add unfunded games to the DOM
     addGamesToPage(funded)
+    funded=true;
+    unfunded=false;
+    allgames=false;
 }
 
 // show all games
@@ -119,6 +127,9 @@ function showAllGames() {
 
     // add all games from the JSON data to the DOM
     addGamesToPage(GAMES_JSON);
+    funded=false;
+    unfunded=false;
+    allgames=true;
 }
 
 // select each button in the "Our Games" section
@@ -173,12 +184,21 @@ secondp.textContent=second.name;
 firstGameContainer.appendChild(firstp);
 // do the same for the runner up item
 secondGameContainer.appendChild(secondp);
-
 function search(text) {
-    deleteChildElements(gamesContainer);
-    let regex=new RegExp(`^${text}`,"i")
-    let searched=GAMES_JSON.filter(game=>regex.test(game.name));
-    addGamesToPage(searched);
+    let prevjson = [];
+    if (funded) {
+        prevjson=GAMES_JSON.filter(game=>game.pledged>=game.goal)
+    } else if (unfunded) {
+        prevjson=GAMES_JSON.filter(game=>game.pledged<game.goal);
+    } else if (allgames) {
+        prevjson=GAMES_JSON
+    }
+    let regex = new RegExp(`^${text}`, "i");
+    let searched = prevjson.filter(game => regex.test(game.name));
+    deleteChildElements(gamesContainer)
+    if (text.length==0)
+        addGamesToPage(prevjson)
+    else 
+        addGamesToPage(searched)
 }
-
 document.getElementById("search").addEventListener("input",(e)=>{search(e.target.value)});
